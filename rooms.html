@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}ROOMS | SecChat{% endblock %}
+
+{% block extra_style %}
+<style>
+.page-header {
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+
+.page-title {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: var(--white);
+  text-transform: uppercase;
+}
+
+.page-title span {
+  color: var(--cyan);
+  text-shadow: 0 0 20px rgba(0,229,255,0.5);
+}
+
+.page-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 1px;
+  margin-top: 6px;
+}
+
+/* Create room input row */
+.create-panel {
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.create-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.3;
+}
+
+.create-row { display: flex; gap: 10px; align-items: flex-end; }
+.create-row input { flex: 1; }
+
+/* Rooms grid */
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.room-card {
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  text-decoration: none; color: var(--text);
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.room-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 100%;
+  background: var(--cyan);
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.room-card:hover {
+  border-color: var(--cyan-dim);
+  background: var(--panel2);
+  transform: translateX(2px);
+}
+.room-card:hover::before { opacity: 1; }
+
+.room-name {
+  font-family: var(--display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--white);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.room-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 1px;
+}
+
+.room-arrow {
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--text3);
+  transition: color 0.2s;
+}
+.room-card:hover .room-arrow { color: var(--cyan); }
+
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+  animation: glow-pulse 2s infinite;
+  display: inline-block;
+  margin-right: 6px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">// <span>Channels</span></div>
+      <div class="page-meta">E2E encrypted · ChaCha20-Poly1305 at rest</div>
+    </div>
+    <span class="badge badge-cyan">{{ rooms|length }} active</span>
+  </div>
+
+  <div class="section-title">Initialize Channel</div>
+  <div class="create-panel">
+    <form method="post" action="/rooms/create">
+      <div class="create-row">
+        <div style="flex:1">
+          <label>Channel Name</label>
+          <input type="text" name="room_name"
+            placeholder="alphanumeric, hyphens allowed"
+            pattern="[a-zA-Z0-9\-]+" required maxlength="32"/>
+        </div>
+        <button type="submit" class="btn btn-success" style="margin-bottom:0">+ INIT</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="section-title">Active Channels</div>
+  {% if rooms %}
+  <div class="rooms-grid">
+    {% for room in rooms %}
+    <a class="room-card" href="/chat/{{ room }}">
+      <div>
+        <div class="room-name"># {{ room }}</div>
+        <div class="room-meta">
+          <span class="status-dot"></span>
+          encrypted · live
+        </div>
+      </div>
+      <span class="room-arrow">→</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info">// No channels initialized — create the first one above.</div>
+  {% endif %}
+
+</div>
+{% endblock %}

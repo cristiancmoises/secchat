@@ -1,0 +1,18 @@
+services:
+  secchat:
+    build: .
+    container_name: secchat
+    restart: unless-stopped
+    ports:
+      - "8100:8000"
+    environment:
+      - SERVER_SECRET=${SERVER_SECRET:-change-this-in-production-min-32-chars!!}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  default:
+    name: secchat-net
